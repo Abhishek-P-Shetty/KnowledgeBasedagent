@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DocQA – Symbolic Document Question Answering</title><link rel="stylesheet" href="style.css"></head><body>
+<header><h1>DocQA <small>AI-based Document Question Answering System</small></h1><p>Rule-based extraction → Knowledge Base → search, rules &amp; inference. No NLP. No RAG. · <a href="report.html">IEEE report</a></p></header>
+<nav><button class="on" data-t="kb">1 · Knowledge Base</button><button data-t="ask">2 · Ask</button><button data-t="ev">3 · Evaluate</button><button data-t="about">4 · Design</button></nav>
+<main>
+<section id="kb" class="tab on"><h2>Document Processing &amp; Knowledge Base Construction</h2>
+<p>Paste a structured document (headings, <code>Key: value</code> lines, bullet lists, Markdown tables, simple “X is …/X has …” sentences) or upload a <code>.txt .md .csv</code> file.</p>
+<textarea id="doc" rows="14" spellcheck="false"></textarea>
+<p>Sample: <select id="sam"><option value="solar">Solar System fact sheet</option><option value="course">AI course handbook</option></select> <input type="file" id="file" accept=".txt,.md,.csv"> <button id="build">Build Knowledge Base</button></p>
+<div id="stats" class="tiles"></div><div class="scroll"><table id="facts"></table></div></section>
+<section id="ask" class="tab"><h2>Question Processing &amp; Reasoning</h2>
+<p><input id="q" placeholder="Ask a question about the document…"> <button id="go">Answer</button></p><p id="chips"></p><div id="out"></div></section>
+<section id="ev" class="tab"><h2>Answer Evaluation</h2>
+<p>One test per line: <code>question =&gt; expected-regex =&gt; question type</code>. Edit freely, then run.</p>
+<textarea id="tests" rows="8" spellcheck="false"></textarea><p><button id="run">Run evaluation</button></p>
+<div id="metrics" class="tiles"></div>
+<p class="note">Accuracy = correct ÷ all tests (correctly abstaining on unanswerable questions counts). Coverage = answered ÷ all. Precision = correct ÷ answered.</p>
+<div class="scroll"><table id="bytype"></table></div><div class="scroll"><table id="res"></table></div></section>
+<section id="about" class="tab"><h2>Design &amp; Justification</h2>
+<h3>Pipeline</h3><p>Document → <b>extraction rules</b> → <b>Knowledge Base</b> (triples + frames + part-of hierarchy) → <b>grounding</b> of the question against KB vocabulary → <b>production rules R1–R9</b> (search, inference) → answer + explanation trace → evaluation.</p>
+<h3>Why symbolic AI, and why not NLP/RAG</h3><p>The brief forbids NLP and RAG, so the system uses no tokenizer pipeline, stemming, POS tagging, embeddings, TF-IDF, vector search or language models. Only regular-expression pattern rules (deterministic extraction) and dictionary look-up against labels already in the KB are used. A tiny stop-list is used solely to detect <i>unknown</i> words so the system can abstain. A rule-based knowledge system is chosen because it is deterministic, explainable (every answer carries its rule and source line) and directly demonstrates knowledge representation, search and reasoning (CO-1 to CO-4).</p>
+<h3>Knowledge representation</h3><ul><li><b>Triples</b> (subject, predicate, value, unit, line) – each is one fact.</li><li><b>Frames</b> – all facts of one subject form its frame (slots = predicates).</li><li><b>Semantic network</b> – <code>part of</code> links (heading hierarchy, table rows) and values that name other entities form graph edges.</li></ul>
+<h3>Extraction rules</h3><ul><li>E1 headings → entities + <code>part of</code>; E2 <code>Key: value</code> → slot; E3 bullets under <code>Key:</code> → multi-valued slot; E4 table rows → frames (header = slot, unit from “(km)”); E5 “X is/are …”, “X has …” → <code>is</code> / <code>has</code> facts.</li></ul>
+<h3>Reasoning rules</h3><ul><li>R1 compare frames · R2 superlative (arg-max/min search) · R3 constraint filtering (generate &amp; test) · R4 enumeration/counting · R5 reserved · R6 yes/no verification with closed-world assumption · R7 definition · R8 attribute look-up with <b>BFS graph search and property inheritance</b> (depth ≤ 2) · R9 fallback overlap ranking or abstention.</li></ul>
+<h3>Limitations</h3><p>Works best on structured documents; questions must use words that exist in the KB (no paraphrase understanding); free prose beyond the E5 patterns is not captured. These are deliberate trade-offs of the symbolic, no-NLP design.</p></section>
+</main>
+<footer>Abhishek P Shetty · 25ETAI410010 · AID201A Artificial Intelligence · Assignment 1</footer>
+<script src="app.js"></script></body></html>
